@@ -85,3 +85,14 @@ apply(
     command, 'hostname >> /tmp/foo'),
   ret, exec(command))"
 ```
+
+## Installation
+
+If you have the https://github.com/paradigm4/dev_tools plugin installed, you can simply run:
+```
+iquery -aq "load_library('dev_tools')"
+iquery -aq "install_github('paradigm4/exec')"
+```
+
+Otherwise, clone this repository, run `Make` and copy the `libexec.so` file to the
+`/opt/scidb/<version>/lib/scidb/plugins` directory on every node. 
