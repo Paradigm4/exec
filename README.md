@@ -1,12 +1,11 @@
 #  The exec plugin
 
-A function that runs arbitrary shell programs as the user that runs the SciDB
-database.
+A function that runs arbitrary shell programs as the user that runs the SciDB database.
 
  *WARNING*
 
 This is a DANGEROUS plugin. Any user who can run queries in SciDB can use this
-plugin to run arbitrary programs with it on every node. Programs run with the
+plugin to run arbitrary programs on every node. Programs run with the
 permission of the user running SciDB. You can delete files, render the database
 unusable, destroy worlds, and generally cause chaos with this plugin. Only use
 it experimentally.
@@ -14,9 +13,10 @@ it experimentally.
 
 ## Synopsis
 
-Scalar valued function `exec`:
+Scalar valued functions `exec` and `kill`:
 ```
 int32 exec (string)
+int32 kill (int32 processID, int32 signal)
 ```
 
 Input value:
@@ -87,7 +87,7 @@ apply(
 ```
 
 
-## kill
+# kill
 
 Use the `kill` function to send any signal to the process IDs spawned by `exec`. In
 particular, we can use signal 9 (SIG_KILL) to forcefully terminate any running process.
