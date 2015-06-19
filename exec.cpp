@@ -32,6 +32,10 @@
 #include <time.h>
 #include <errno.h>
 #include <math.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
+#include <wait.h>
 
 #include <vector>
 
@@ -45,10 +49,38 @@ using namespace std;
 using namespace scidb;
 using namespace boost::assign;
 
+
+static void
+killer(const Value** args, Value *res, void*)
+{
+  pid_t pid = (pid_t)args[0]->getInt32();
+  int sig = (int)args[1]->getInt32();
+  res->setInt32( kill(pid, sig) );
+  waitpid(-1, 0, WNOHANG);
+}
+
 static void
 danger(const Value** args, Value *res, void*)
 {
-  res->setInt32( ::system ( args[0]->getString() ));
+  const char *cmd = args[0]->getString();
+  const char *sh[] = { "/bin/sh", "-c", cmd, NULL };
+  pid_t pid;
+  signal(SIGCHLD, SIG_IGN);
+  if ((pid = fork()) < 0)
+  {
+    res->setInt32(-1);
+    return;
+  }
+  else if (pid == 0)
+  {
+    // child process
+    execv("/bin/sh", (char * const *)sh);
+    _exit(0);
+  } else
+  {
+    res->setInt32((int)pid);
+  }
 }
 
 REGISTER_FUNCTION(exec, list_of("string"), "int32", danger);
+REGISTER_FUNCTION(kill, list_of("int32")("int32"), "int32", killer);

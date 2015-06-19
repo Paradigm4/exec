@@ -1,7 +1,7 @@
 #  The exec plugin
 
-A function that runs arbitrary shell programs as the user
-that runs the SciDB database.
+A function that runs arbitrary shell programs as the user that runs the SciDB
+database.
 
  *WARNING*
 
@@ -25,11 +25,11 @@ Input value:
 
 Return value:
 
-* The int32 shell exit code.
+* The int32 process ID of the child process.
 
 ## Details
 
-The exec function is a thin wrapper for the C++ standard library `system`
+The exec function is a thin wrapper for the standard library `fork`
 function. That function passes the single argument to the system `sh`
 program, which can vary considerably on Unix systems.
 
@@ -84,6 +84,17 @@ apply(
       <node:string null>[No=0:*,1,0]),
     command, 'hostname >> /tmp/foo'),
   ret, exec(command))"
+```
+
+
+## kill
+
+Use the `kill` function to send any signal to the process IDs spawned by `exec`. In
+particular, we can use signal 9 (SIG_KILL) to forcefully terminate any running process.
+An example follows:
+```
+iquery -aq "store(apply(build(<command:string>[i=0:3,1,0],'sleep 15'),pid,exec(command)),x)"
+iquery -aq "apply(x,d,kill(pid, 9))"
 ```
 
 ## Installation
